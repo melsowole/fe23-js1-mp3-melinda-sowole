@@ -1,0 +1,56 @@
+<!-- 
+	Author: Melinda Sowole
+	Date: 11/12/2023 
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<script defer src="script.js"></script>
+		<link rel="stylesheet" href="styles.css" />
+		<title>Countries</title>
+	</head>
+	<body class="dark-mode">
+		<button class="toggle-light-mode">Light</button>
+
+		<h1>Search Countries</h1>
+		<form>
+			<div class="radio-wrapper">
+				<span>
+					<label for="radio-name">Country Name</label>
+					<input
+						type="radio"
+						name="search-type"
+						value="name"
+						data-label="Country Name"
+						id="radio-name"
+						checked
+					/>
+				</span>
+
+				<span>
+					<label for="radio-language">Language</label>
+					<input
+						type="radio"
+						name="search-type"
+						value="lang"
+						data-label="Language"
+						id="radio-language"
+					/>
+				</span>
+			</div>
+
+			<div>
+				<label for="search" class="search-label">Search :</label>
+				<input type="text" id="search" />
+			</div>
+
+			<button type="submit">Get Countries</button>
+		</form>
+
+		<h2 class="result-message">Result</h2>
+		<section class="search-result"></section>
+	</body>
+</html>

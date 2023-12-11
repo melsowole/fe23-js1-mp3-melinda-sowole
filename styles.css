@@ -1,0 +1,157 @@
+/* 
+	Author: Melinda Sowole
+	Date: 11/12/2023  
+*/
+
+@import url("https://fonts.googleapis.com/css2?family=Karla:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap");
+
+:root {
+	--bg: white;
+	--surface: #f5f5f5;
+	--surfaceSelect: #eee;
+	--contrast: black;
+	--color: #33691e;
+	--shadow: #a3a3a3;
+	--trans: rgba(0, 0, 0, 0.8);
+
+	--xs: 0.1rem;
+	--s: 0.5rem;
+	--m: calc(var(--s) * 2);
+	--l: calc(var(--m) * 2.5);
+	--xl: calc(var(--l) * 4);
+}
+
+body.dark-mode {
+	--bg: #212121;
+	--surface: #424242;
+	--surfaceSelect: #616161;
+	--contrast: white;
+	--color: #b2ff59;
+	--shadow: #111;
+}
+
+body {
+	background-color: var(--bg);
+	color: var(--contrast);
+	font-family: "Karla", sans-serif;
+}
+
+@media (min-width: 700px) {
+	body {
+		margin: 0px 10%;
+	}
+}
+
+button,
+label,
+input[type="radio"] {
+	cursor: pointer;
+}
+
+img {
+	width: 100%;
+}
+
+/* FUNCTIONAL CLASSES */
+.no-scroll {
+	overflow: hidden;
+}
+
+/* FORM */
+form {
+	border-bottom: var(--xs) solid var(--surfaceSelect);
+	padding-bottom: var(--l);
+	margin-bottom: var(--l);
+}
+
+form > * {
+	padding-bottom: var(--m);
+}
+
+.radio-wrapper > * {
+	padding-right: var(--m);
+}
+
+input,
+button {
+	outline: none;
+	border: none;
+	padding: var(--s);
+	color: var(--contrast);
+	border-radius: var(--xs);
+}
+
+input {
+	background-color: var(--surface);
+	border: var(--xs) solid var(--surface);
+}
+
+input:focus {
+	border: var(--xs) solid var(--color);
+}
+
+button {
+	background-color: var(--surfaceSelect);
+}
+
+/* SEARCH RESULTS */
+
+.search-result {
+	border: var(--xs) solid var(--surfaceSelect);
+	min-height: var(--xl);
+
+	padding: var(--l);
+	gap: var(--l);
+
+	display: flex;
+	justify-content: center;
+	flex-wrap: wrap;
+}
+
+/* result card */
+.search-result > * {
+	cursor: pointer;
+	width: 300px;
+	border-radius: var(--xs);
+	background-color: var(--surfaceSelect);
+	padding: var(--m);
+	box-shadow: 0px 0px var(--s) var(--shadow);
+}
+
+/* modal  */
+.modal {
+	cursor: pointer;
+	position: fixed;
+	top: 0;
+	left: 0;
+	background-color: var(--trans);
+	min-height: 100svh;
+	width: 100vw;
+}
+
+/* modal card */
+.modal > * {
+	cursor: default;
+	background-color: var(--bg);
+	width: 50%;
+	max-width: 450px;
+	margin: 5% auto;
+	padding: var(--m);
+	padding-bottom: var(--l);
+}
+
+.modal img:first-of-type {
+	width: 50px;
+}
+
+.modal button {
+	float: right;
+}
+
+.modal h3 {
+	clear: both;
+}
+
+h4 {
+	padding-top: var(--m);
+}
