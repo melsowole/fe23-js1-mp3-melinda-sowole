@@ -59,7 +59,7 @@ formDOM.addEventListener("submit", (event) => {
 
 			displayCountries(sortArrayDesc(countries, "population"));
 		})
-		.catch(setResultMessage);
+		.catch(displayErrorMessage);
 });
 
 lightButtonDOM.addEventListener("click", toggleLightMode);
@@ -73,29 +73,8 @@ function updateSearchInputLabelText() {
 	searchInputLabelDOM.textContent = `Search by ${labelString} :`;
 }
 
-// toggles between dark and light mode
-function toggleLightMode() {
-	const darkMode = document.querySelector(".dark-mode");
-
-	if (darkMode) {
-		//turn off dark mode
-		document.body.classList.remove("dark-mode");
-		lightButtonDOM.textContent = "dark mode";
-	} else {
-		document.body.classList.add("dark-mode");
-		lightButtonDOM.textContent = "light mode";
-	}
-}
-
-function getInputString() {
-	return searchInputDOM.value;
-}
-
-function getCheckedRadioDOM() {
-	return document.querySelector(":checked");
-}
-
-// fetch from weatherAPI
+// - API fetches
+// -- weatherAPI
 async function displayCurrentWeather([lat, long], parent) {
 	const response = await fetch(getWeatherSearchURL([lat, long]));
 	const data = await response.json();
@@ -111,49 +90,7 @@ async function displayCurrentWeather([lat, long], parent) {
 	parent.append(text);
 }
 
-function getCountryDOM(country, click) {
-	const countryDOM = createElement("article");
-
-	const flagDOM = createElement("img");
-	flagDOM.src = country.flags.png;
-
-	const nameDOM = createElement("h3", "country-name");
-	nameDOM.textContent = country.name.common;
-
-	countryDOM.append(flagDOM, nameDOM);
-
-	const keys = ["capital", "subregion", "population"];
-
-	keys.forEach((key) => {
-		const elementDOM = createElement("p");
-
-		const keyCapitalized = key[0].toUpperCase() + key.slice(1);
-
-		elementDOM.textContent = keyCapitalized + " : " + country[key];
-		countryDOM.append(elementDOM);
-	});
-
-	// only add eventlistened when specified
-	if (click) {
-		countryDOM.addEventListener("click", () => {
-			displayCountryModal(country);
-		});
-	}
-
-	return countryDOM;
-}
-
-async function setCapitalImageUrl(capitalName, imgDOM) {
-	const imgObj = await getImageObj(capitalName);
-
-	if (imgObj) {
-		imgDOM.src = imgObj.webformatURL;
-	} else {
-		imgDOM.remove();
-	}
-}
-
-// fetch from pixabay
+// -- pixabay
 async function getImageObj(query) {
 	const response = await fetch(getPictureSearchURL(query));
 	const data = await response.json();
@@ -228,37 +165,22 @@ function displayCountryModal(country) {
 	}
 }
 
-// fetch from restCountries
+// -- restCountries
 async function getCountries() {
 	console.log("searching...");
 	searchResultDOM.innerHTML = "";
 
 	const response = await fetch(getCountriesSearchURL());
-	console.log(response);
 
 	if (response.ok) {
 		const countries = await response.json();
 		return countries;
 	} else {
-		console.log(response);
-		const status = response.status;
-
-		if (status == 404) {
-			throw "No results found";
-		} else if (status >= 500) {
-			throw "An error has occured, try again later";
-		} else {
-			throw `Error: ${response.status}`;
-		}
+		throw response;
 	}
 }
 
-function displayCountries(countries) {
-	countries.forEach((country) => {
-		searchResultDOM.append(getCountryDOM(country, true));
-	});
-}
-
+// - Helper Functions
 function createElement(type, className) {
 	const elementDOM = document.createElement(type);
 	if (className) elementDOM.classList.add(className);
@@ -273,7 +195,16 @@ function sortArrayDesc(array, key) {
 	return array.sort((x, y) => x[key] < y[key]);
 }
 
-// API search functions, return full API url
+// -- Get info
+function getInputString() {
+	return searchInputDOM.value;
+}
+
+function getCheckedRadioDOM() {
+	return document.querySelector(":checked");
+}
+
+// - API search url functions, returns full API url
 function getCountriesSearchURL() {
 	const endpoint = getCheckedRadioDOM().value;
 	const query = getInputString();
@@ -290,10 +221,82 @@ function getPictureSearchURL(place) {
 	return `${pixabayBaseURL}key=${pixabayAPIKey}${defualtQueries}&q=${place}`;
 }
 
+// - Communication functions, DOM manipulation
 function setResultMessage(message) {
 	resultMessageDOM.textContent = message;
 }
 
+function displayErrorMessage(err) {
+	let message =
+		err.status == 404
+			? "No results"
+			: "There was an error, please try again later!";
+
+	setResultMessage(message);
+}
+
 function unsetResultMessage() {
 	resultMessageDOM.textContent = "";
+}
+
+function displayCountries(countries) {
+	countries.forEach((country) => {
+		searchResultDOM.append(getCountryDOM(country, true));
+	});
+}
+
+function getCountryDOM(country, click) {
+	const countryDOM = createElement("article");
+
+	const flagDOM = createElement("img");
+	flagDOM.src = country.flags.png;
+
+	const nameDOM = createElement("h3", "country-name");
+	nameDOM.textContent = country.name.common;
+
+	countryDOM.append(flagDOM, nameDOM);
+
+	const keys = ["capital", "subregion", "population"];
+
+	keys.forEach((key) => {
+		const elementDOM = createElement("p");
+
+		const keyCapitalized = key[0].toUpperCase() + key.slice(1);
+
+		elementDOM.textContent = keyCapitalized + " : " + country[key];
+		countryDOM.append(elementDOM);
+	});
+
+	// only add eventlistened when specified
+	if (click) {
+		countryDOM.addEventListener("click", () => {
+			displayCountryModal(country);
+		});
+	}
+
+	return countryDOM;
+}
+
+async function setCapitalImageUrl(capitalName, imgDOM) {
+	const imgObj = await getImageObj(capitalName);
+
+	if (imgObj) {
+		imgDOM.src = imgObj.webformatURL;
+	} else {
+		imgDOM.remove();
+	}
+}
+
+// toggles between dark and light mode
+function toggleLightMode() {
+	const darkMode = document.querySelector(".dark-mode");
+
+	if (darkMode) {
+		//turn off dark mode
+		document.body.classList.remove("dark-mode");
+		lightButtonDOM.textContent = "dark mode";
+	} else {
+		document.body.classList.add("dark-mode");
+		lightButtonDOM.textContent = "light mode";
+	}
 }
