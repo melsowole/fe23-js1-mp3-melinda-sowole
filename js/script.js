@@ -248,6 +248,8 @@ function displayCountries(countries) {
 function getCountryDOM(country, click) {
 	const countryDOM = createElement("article");
 
+	console.log(country);
+
 	const flagDOM = createElement("img");
 	flagDOM.src = country.flags.png;
 
@@ -260,6 +262,10 @@ function getCountryDOM(country, click) {
 
 	keys.forEach((key) => {
 		const elementDOM = createElement("p");
+
+		if (country[key] == "") {
+			country[key] = "-";
+		}
 
 		const keyCapitalized = key[0].toUpperCase() + key.slice(1);
 
