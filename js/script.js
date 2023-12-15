@@ -1,55 +1,50 @@
 /*
  * Author: Melinda Sowole
  * Date: 11/12/2023
- * Description:
- * 		This was a graded Miniproject created as part of the
+ * Description: (excessive, make shorter)
+ * 		Miniproject created as part of the
  * 		Javascript 1 course at Grit Academy Fall23.
- * 		The goal was using the REST Countries API to create
- * 		and application in which users can search for countries
- * 		using either country name or language as a search query.
- * 		Required functionalities included:
+ *
+ * 		Application uses REST Countries API to let users search
+ * 		for countries using name or language.
+ *
+ * 		Required functionalities:
  * 		- Display country info:
  * 			- official name, subregion, capital, population, flag
  * 		- Fetch only specified fields from API
  * 		- Sort results in descending order based on population
- * 		- Error handling:
- * 			- Display server and network errors
- * 			- Display result errors (e.g. 404)
+ * 		- Basic error handling
  *
  */
-
-// DOM Elements
-const formDOM = document.querySelector("form");
-const searchInputLabelDOM = document.querySelector(".search-label");
-const searchInputDOM = document.querySelector("#search");
-const radiosDOM = document.querySelectorAll("input[type='radio']");
-const lightButtonDOM = document.querySelector(".toggle-light-mode");
-const searchResultDOM = document.querySelector(".search-result");
-const resultMessageDOM = document.querySelector(".result-message");
-
-// API URLs and Keys
-const countriesBaseURL = `https://restcountries.com/v3.1/`;
-const countriesFields =
-	"name,capital,languages,subregion,population,flags,capitalInfo,demonyms";
-//call example: `${countriesBaseURL}["name"||"lang"]/[QUERY]?fields=${countriedFields}`
-
-const weatherAPIKey = `23504d3733698e142ae5804cbaacd5d2`;
-const weatherBaseURL = `https://api.openweathermap.org/data/2.5/weather?`;
-// call example: `${weatherBaseURL}lat=${latitude}&lon=${longitude}${weatherAPIKey}`
-
-const pixabayAPIKey = `41126575-5a60f8132b12eefacd83f4585`;
-const pixabayBaseURL = `https://pixabay.com/api/?`;
 
 // Initialization
 updateSearchInputLabelText();
 
 // Event Listeners
-radiosDOM.forEach((radioDOM) => {
-	radioDOM.addEventListener("click", updateSearchInputLabelText);
+const form = document.querySelector("form");
+form.addEventListener("submit", handleSubmit);
+
+const lightButton = document.querySelector(".toggle-light-mode");
+lightButton.addEventListener("click", toggleLightMode);
+
+const radios = document.querySelectorAll("input[type='radio']");
+radios.forEach((radio) => {
+	radio.addEventListener("click", updateSearchInputLabelText);
 });
 
-formDOM.addEventListener("submit", (event) => {
+// Functions
+function updateSearchInputLabelText() {
+	const labelString = document.querySelector(
+		`label[for='${getCheckedRadioDOM().id}']`
+	).textContent;
+
+	const inputLabel = document.querySelector(".search-label");
+	inputLabel.textContent = `Search by ${labelString} :`;
+}
+
+function handleSubmit(event) {
 	event.preventDefault();
+	clearResults();
 
 	getCountries()
 		.then((countries) => {
@@ -60,17 +55,6 @@ formDOM.addEventListener("submit", (event) => {
 			displayCountries(sortArrayDesc(countries, "population"));
 		})
 		.catch(displayErrorMessage);
-});
-
-lightButtonDOM.addEventListener("click", toggleLightMode);
-
-// Functions
-function updateSearchInputLabelText() {
-	const labelString = document.querySelector(
-		`label[for='${getCheckedRadioDOM().id}']`
-	).textContent;
-
-	searchInputLabelDOM.textContent = `Search by ${labelString} :`;
 }
 
 // - API fetches
@@ -167,9 +151,6 @@ function displayCountryModal(country) {
 
 // -- restCountries
 async function getCountries() {
-	console.log("searching...");
-	searchResultDOM.innerHTML = "";
-
 	const response = await fetch(getCountriesSearchURL());
 
 	if (response.ok) {
@@ -197,7 +178,8 @@ function sortArrayDesc(array, key) {
 
 // -- Get info
 function getInputString() {
-	return searchInputDOM.value;
+	const searchInput = document.querySelector("#search");
+	return searchInput.value;
 }
 
 function getCheckedRadioDOM() {
@@ -208,22 +190,36 @@ function getCheckedRadioDOM() {
 function getCountriesSearchURL() {
 	const endpoint = getCheckedRadioDOM().value;
 	const query = getInputString();
-	return `${countriesBaseURL}${endpoint}/${query}?fields=${countriesFields}`;
+
+	const baseURL = `https://restcountries.com/v3.1/${endpoint}/${query}`;
+	const fields =
+		"?fields=name,capital,languages,subregion,population,flags,capitalInfo,demonyms";
+
+	return baseURL + fields;
 }
 
 function getWeatherSearchURL([lat, long]) {
-	return `${weatherBaseURL}&lat=${lat}&lon=${long}&appid=${weatherAPIKey}`;
+	const APIKey = `&appid=23504d3733698e142ae5804cbaacd5d2`;
+	const baseURL = `https://api.openweathermap.org/data/2.5/weather?`;
+
+	console.log(baseURL + `lat=${lat}&lon=${long}` + APIKey);
+
+	return baseURL + `lat=${lat}&lon=${long}` + APIKey;
 }
 
 function getPictureSearchURL(place) {
+	const APIKey = `key=41126575-5a60f8132b12eefacd83f4585`;
+	const baseURL = `https://pixabay.com/api/?`;
+
 	const defualtQueries =
 		"&image_type=photo&orientation=horizontal&safesearch=true&order=popular&per_page=3";
-	return `${pixabayBaseURL}key=${pixabayAPIKey}${defualtQueries}&q=${place}`;
+
+	return baseURL + APIKey + defualtQueries + `&q=${place}`;
 }
 
 // - Communication functions, DOM manipulation
 function setResultMessage(message) {
-	resultMessageDOM.textContent = message;
+	document.querySelector(".result-message").textContent = message;
 }
 
 function displayErrorMessage(err) {
@@ -236,19 +232,18 @@ function displayErrorMessage(err) {
 }
 
 function unsetResultMessage() {
-	resultMessageDOM.textContent = "";
+	document.querySelector(".result-message").textContent = "";
 }
 
 function displayCountries(countries) {
+	const resultsContainer = document.querySelector(".search-result");
 	countries.forEach((country) => {
-		searchResultDOM.append(getCountryDOM(country, true));
+		resultsContainer.append(getCountryDOM(country, true));
 	});
 }
 
 function getCountryDOM(country, click) {
 	const countryDOM = createElement("article");
-
-	console.log(country);
 
 	const flagDOM = createElement("img");
 	flagDOM.src = country.flags.png;
@@ -263,17 +258,13 @@ function getCountryDOM(country, click) {
 	keys.forEach((key) => {
 		const elementDOM = createElement("p");
 
-		if (country[key] == "") {
-			country[key] = "-";
-		}
-
 		const keyCapitalized = key[0].toUpperCase() + key.slice(1);
 
 		elementDOM.textContent = keyCapitalized + " : " + country[key];
 		countryDOM.append(elementDOM);
 	});
 
-	// only add eventlistened when specified
+	// only add eventlistener when specified
 	if (click) {
 		countryDOM.addEventListener("click", () => {
 			displayCountryModal(country);
@@ -293,6 +284,10 @@ async function setCapitalImageUrl(capitalName, imgDOM) {
 	}
 }
 
+function clearResults() {
+	document.querySelector(".search-result").innerHTML = "";
+}
+
 // toggles between dark and light mode
 function toggleLightMode() {
 	const darkMode = document.querySelector(".dark-mode");
@@ -300,9 +295,9 @@ function toggleLightMode() {
 	if (darkMode) {
 		//turn off dark mode
 		document.body.classList.remove("dark-mode");
-		lightButtonDOM.textContent = "dark mode";
+		lightButton.textContent = "dark mode";
 	} else {
 		document.body.classList.add("dark-mode");
-		lightButtonDOM.textContent = "light mode";
+		lightButton.textContent = "light mode";
 	}
 }
